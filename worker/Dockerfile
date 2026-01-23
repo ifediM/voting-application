@@ -18,6 +18,9 @@ WORKDIR /source
 COPY *.csproj .
 RUN dotnet restore -a $TARGETARCH
 
+# Install Git
+RUN apt install -y git
+
 # Set the build argument directive
 ARG PERSONAL_ACCESS_TOKEN
 ARG GITHUB_USERNAME
