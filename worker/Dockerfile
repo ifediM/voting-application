@@ -18,6 +18,16 @@ WORKDIR /source
 COPY *.csproj .
 RUN dotnet restore -a $TARGETARCH
 
+# Set the build argument directive
+ARG PERSONAL_ACCESS_TOKEN
+ARG GITHUB_USERNAME
+ARG REPOSITORY_NAME
+
+# Use the build argument to set environment variables 
+ENV PERSONAL_ACCESS_TOKEN=$PERSONAL_ACCESS_TOKEN
+ENV GITHUB_USERNAME=$GITHUB_USERNAME
+ENV REPOSITORY_NAME=$REPOSITORY_NAME
+
 COPY . .
 RUN dotnet publish -c release -o /app -a $TARGETARCH --self-contained false --no-restore
 
