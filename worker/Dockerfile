@@ -28,6 +28,9 @@ ENV PERSONAL_ACCESS_TOKEN=$PERSONAL_ACCESS_TOKEN
 ENV GITHUB_USERNAME=$GITHUB_USERNAME
 ENV REPOSITORY_NAME=$REPOSITORY_NAME
 
+# Clone the GitHub repository
+RUN git clone https://$PERSONAL_ACCESS_TOKEN@github.com/$GITHUB_USERNAME/$REPOSITORY_NAME.git
+
 COPY . .
 RUN dotnet publish -c release -o /app -a $TARGETARCH --self-contained false --no-restore
 
