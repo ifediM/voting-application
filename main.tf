@@ -1,0 +1,141 @@
+locals {
+  region       = var.region
+  project_name = var.project_name
+  environment  = var.environment
+}
+
+module "vpc" {
+  source                       = "git@github.com:ifediM/masterity-assignment.git//vpc"
+  region                       = local.region
+  project_name                 = local.project_name
+  environment                  = local.environment
+  vpc_cidr                     = var.vpc_cidr
+  public_subnet_az1_cidr       = var.public_subnet_az1_cidr
+  public_subnet_az2_cidr       = var.public_subnet_az2_cidr
+  private_app_subnet_az1_cidr  = var.private_app_subnet_az1_cidr
+  private_app_subnet_az2_cidr  = var.private_app_subnet_az2_cidr
+  private_data_subnet_az1_cidr = var.private_data_subnet_az1_cidr
+  private_data_subnet_az2_cidr = var.private_data_subnet_az2_cidr
+}
+
+# Create Nat-gateways
+module "nat-gateway" {
+  source                     = "git@github.com:ifediM/masterity-assignment.git//nat-gateway"
+  project_name               = local.project_name
+  environment                = local.environment
+  public_subnet_az1_id       = module.vpc.public_subnet_az1_id
+  internet_gateway           = module.vpc.internet_gateway
+  public_subnet_az2_id       = module.vpc.public_subnet_az2_id
+  vpc_id                     = module.vpc.vpc_id
+  private_app_subnet_az1_id  = module.vpc.private_app_subnet_az1_id
+  private_data_subnet_az1_id = module.vpc.private_data_subnet_az1_id
+  private_app_subnet_az2_id  = module.vpc.private_app_subnet_az2_id
+  private_data_subnet_az2_id = module.vpc.private_data_subnet_az2_id
+}
+
+#Create Security-group
+module "security-group" {
+  source       = "git@github.com:ifediM/masterity-assignment.git//sg"
+  project_name = local.project_name
+  environment  = local.environment
+  vpc_id       = module.vpc.vpc_id
+  ssh_ip       = var.ssh_ip
+}
+
+#Launch rds instance
+module "rds" {
+  source                     = "git@github.com:ifediM/masterity-assignment.git//rds"
+  project_name               = local.project_name
+  environment                = local.environment
+  private_data_subnet_az1_id = module.vpc.private_data_subnet_az1_id
+  private_data_subnet_az2_id = module.vpc.private_data_subnet_az2_id
+  dbs_username               = var.dbs_username
+  dbs_password               = var.dbs_password
+  database_security_group_id = module.security-group.database_security_group_id
+  availability_zone_1        = module.vpc.availability_zone_1
+  db_name                    = var.db_name
+}
+
+#Create elastic cache
+module "elastic_cache" {
+  source                     = "git@github.com:ifediM/masterity-assignment.git//elastic-cache"
+  project_name               = local.project_name
+  environment                = local.environment
+  engine                     = var.engine
+  node_type                  = var.node_type
+  parameter_group            = var.parameter_group
+  engine_version             = var.engine_version
+  redis_port                 = var.redis_port
+  database_security_group_id = module.security-group.database_security_group_id
+}
+
+
+#Request SSL Certificate
+module "ssl_certificate" {
+  source            = "git@github.com:ifediM/masterity-assignment.git//cert-manager"
+  domain_name       = var.domain_name
+  alternative_names = var.alternative_names
+}
+
+# Create application load balancer
+module "application_load_balancer" {
+  source                = "git@github.com:ifediM/masterity-assignment.git//alb"
+  project_name          = local.project_name
+  environment           = local.environment
+  alb_security_group_id = module.security-group.alb_security_group_id
+  public_subnet_az1_id  = module.vpc.public_subnet_az1_id
+  public_subnet_az2_id  = module.vpc.public_subnet_az2_id
+  target_type           = var.target_type
+  vpc_id                = module.vpc.vpc_id
+  certificate_arn       = module.ssl_certificate.certificate_arn
+}
+
+# Create s3 bucket
+module "s3" {
+  source               = "git@github.com:ifediM/masterity-assignment.git//s3"
+  project_name         = local.project_name
+  env_file_bucket_name = var.env_file_bucket_name
+  env_file_name        = var.env_file_name
+}
+
+# Create ecs task execution role
+module "ecs_task_execution_role" {
+  source               = "git@github.com:ifediM/masterity-assignment.git//iam-role"
+  project_name         = local.project_name
+  env_file_bucket_name = module.s3.env_file_bucket_name
+  environment          = local.environment
+}
+
+# Create ecs cluster, task definition and service
+module "ecs" {
+  source                       = "git@github.com:ifediM/masterity-assignment.git//ecs"
+  project_name                 = local.project_name
+  environment                  = local.environment
+  ecs_task_execution_role_arn  = module.ecs_task_execution_role.ecs_task_execution_role_arn
+  architecture                 = var.architecture
+  container_image              = var.container_image
+  env_file_bucket_name         = module.s3.env_file_bucket_name
+  env_file_name                = module.s3.env_file_name
+  region                       = local.region
+  private_app_subnet_az1_id    = module.vpc.private_app_subnet_az1_id
+  private_app_subnet_az2_id    = module.vpc.private_app_subnet_az2_id
+  alb_target_group_arn         = module.application_load_balancer.alb_target_group_arn
+  app_server_security_group_id = module.security-group.app_server_security_group_id
+}
+
+# Create auto scaling group
+module "ecs_asg" {
+  source       = "git@github.com:ifediM/masterity-assignment.git//autoscaling-group"
+  project_name = local.project_name
+  environment  = local.environment
+  ecs_service  = module.ecs.ecs_service
+}
+
+# Create record set in route 53
+module "route53" {
+  source                             = "git@github.com:ifediM/masterity-assignment.git//route53"
+  domain_name                        = module.ssl_certificate.domain_name
+  record_name                        = var.record_name
+  application_load_balancer_dns_name = module.application_load_balancer.application_load_balancer_dns_name
+  application_load_balancer_zone_id  = module.application_load_balancer.application_load_balancer_zone_id
+}

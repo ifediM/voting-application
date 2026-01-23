@@ -35,3 +35,8 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+voting-app.env
+build_image.sh
+build_image2.sh
+build_image3.sh
