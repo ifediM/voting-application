@@ -7,16 +7,6 @@ RUN apt-get update && \
 
 WORKDIR /usr/local/app
 
-# Set the build argument directive
-ARG PERSONAL_ACCESS_TOKEN
-ARG GITHUB_USERNAME
-ARG REPOSITORY_NAME
-
-# Use the build argument to set environment variables 
-ENV PERSONAL_ACCESS_TOKEN=$PERSONAL_ACCESS_TOKEN
-ENV GITHUB_USERNAME=$GITHUB_USERNAME
-ENV REPOSITORY_NAME=$REPOSITORY_NAME
-
 # have nodemon available for local dev use (file watching)
 RUN npm install -g nodemon
 
