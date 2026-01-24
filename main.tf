@@ -35,7 +35,7 @@ module "nat-gateway" {
 
 #Create Security-group
 module "security-group" {
-  source       = "git@github.com:ifediM/masterity-assignment.git//sg"
+  source       = "git@github.com:ifediM/masterity-assignment.git//security-group"
   project_name = local.project_name
   environment  = local.environment
   vpc_id       = module.vpc.vpc_id
