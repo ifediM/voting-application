@@ -5,6 +5,6 @@ terraform {
     key            = "terraform_module/voting-app/terraform.tfstate"
     region         = "us-east-1"
     profile        = "masterity"
-    dynamodb_table = "terraform-state-lock"
+    dynamodb_table = "masterity-demo-lock"
   }
 }
