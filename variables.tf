@@ -44,3 +44,9 @@ variable "container_image" {}
 
 #Route 53 variables
 variable "record_name" {}
+
+#ecs variables
+variable "architecture" {}
+variable "container_image" {}
+variable "container_image2" {}
+variable "container_image3" {}
