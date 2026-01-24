@@ -18,28 +18,6 @@ WORKDIR /source
 COPY *.csproj .
 RUN dotnet restore -a $TARGETARCH
 
-# Install Git
-RUN apt install -y git
-
-# Set the build argument directive
-ARG PERSONAL_ACCESS_TOKEN
-ARG GITHUB_USERNAME
-ARG REPOSITORY_NAME
-
-# Use the build argument to set environment variables 
-ENV PERSONAL_ACCESS_TOKEN=$PERSONAL_ACCESS_TOKEN
-ENV GITHUB_USERNAME=$GITHUB_USERNAME
-ENV REPOSITORY_NAME=$REPOSITORY_NAME
-
-# Clone the GitHub repository
-RUN git clone https://$PERSONAL_ACCESS_TOKEN@github.com/$GITHUB_USERNAME/$REPOSITORY_NAME.git
-
-# Copy the web files into the HTML directory
-RUN cp -av $REPOSITORY_NAME/. /source
-
-# Remove the repository we cloned
-RUN rm -rf $REPOSITORY_NAME
-
 COPY . .
 RUN dotnet publish -c release -o /app -a $TARGETARCH --self-contained false --no-restore
 
