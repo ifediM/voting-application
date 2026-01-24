@@ -114,6 +114,8 @@ module "ecs" {
   ecs_task_execution_role_arn  = module.ecs_task_execution_role.ecs_task_execution_role_arn
   architecture                 = var.architecture
   container_image              = var.container_image
+  container_image2             = var.container_image2
+  container_image3             = var.container_image3
   env_file_bucket_name         = module.s3.env_file_bucket_name
   env_file_name                = module.s3.env_file_name
   region                       = local.region
