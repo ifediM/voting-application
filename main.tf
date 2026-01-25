@@ -52,7 +52,7 @@ module "rds" {
   dbs_username               = var.dbs_username
   dbs_password               = var.dbs_password
   database_security_group_id = module.security-group.database_security_group_id
-  availability_zone_1        = module.vpc.availability_zone_1
+  #availability_zone_1        = module.vpc.availability_zone_1
   db_name                    = var.db_name
 }
 
@@ -144,3 +144,8 @@ module "route53" {
   application_load_balancer_dns_name = module.application_load_balancer.application_load_balancer_dns_name
   application_load_balancer_zone_id  = module.application_load_balancer.application_load_balancer_zone_id
 }
+
+# print the website url
+#output "website_url" {
+#  value = join("", ["https://", var.record_name, ".", var.domain_name])
+#}
