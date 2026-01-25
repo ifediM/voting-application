@@ -61,6 +61,8 @@ module "elastic_cache" {
   source                     = "git@github.com:ifediM/masterity-assignment.git//elastic-cache"
   project_name               = local.project_name
   environment                = local.environment
+  private_data_subnet_az1_id = module.vpc.private_data_subnet_az1_id
+  private_data_subnet_az2_id = module.vpc.private_data_subnet_az2_id
   engine                     = var.engine
   node_type                  = var.node_type
   parameter_group            = var.parameter_group
