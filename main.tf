@@ -123,7 +123,6 @@ module "ecs" {
   region                       = local.region
   private_app_subnet_az1_id    = module.vpc.private_app_subnet_az1_id
   private_app_subnet_az2_id    = module.vpc.private_app_subnet_az2_id
-  alb_target_group_arn         = module.application_load_balancer.alb_target_group_arn
   alb_result_target_group_arn  = module.application_load_balancer.alb_result_target_group_arn
   alb_vote_target_group_arn    = module.application_load_balancer.alb_vote_target_group_arn
   app_server_security_group_id = module.security-group.app_server_security_group_id
