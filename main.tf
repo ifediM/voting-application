@@ -126,6 +126,7 @@ module "ecs" {
   alb_result_target_group_arn  = module.application_load_balancer.alb_result_target_group_arn
   alb_vote_target_group_arn    = module.application_load_balancer.alb_vote_target_group_arn
   app_server_security_group_id = module.security-group.app_server_security_group_id
+  worker_security_group_id     = module.security-group.worker_security_group_id
 }
 
 # Create auto scaling group
