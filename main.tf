@@ -49,11 +49,11 @@ module "rds" {
   environment                = local.environment
   private_data_subnet_az1_id = module.vpc.private_data_subnet_az1_id
   private_data_subnet_az2_id = module.vpc.private_data_subnet_az2_id
-  dbs_username =             var.dbs_username
-  dbs_password =           var.dbs_password
+  dbs_username               = var.dbs_username
+  dbs_password               = var.dbs_password
   database_security_group_id = module.security-group.database_security_group_id
   #availability_zone_1        = module.vpc.availability_zone_1
-  db_name =  var.db_name
+  db_name = var.db_name
 }
 
 #Create elastic cache
@@ -127,6 +127,12 @@ module "ecs" {
   alb_vote_target_group_arn    = module.application_load_balancer.alb_vote_target_group_arn
   app_server_security_group_id = module.security-group.app_server_security_group_id
   worker_security_group_id     = module.security-group.worker_security_group_id
+  redis_port                   = module.elastic_cache.redis_port
+  dbs_username                 = var.dbs_username
+  dbs_password                 = var.dbs_password
+  db_name                      = var.db_name
+  redis_endpoint               = module.elastic_cache.redis_endpoint
+  rds = module.rds.rds
 }
 
 # Create auto scaling group
