@@ -93,19 +93,19 @@ module "application_load_balancer" {
 }
 
 # Create s3 bucket
-module "s3" {
-  source               = "git@github.com:ifediM/masterity-assignment.git//s3"
-  project_name         = local.project_name
-  env_file_bucket_name = var.env_file_bucket_name
-  env_file_name        = var.env_file_name
-}
+#module "s3" {
+#  source               = "git@github.com:ifediM/masterity-assignment.git//s3"
+#  project_name         = local.project_name
+#  env_file_bucket_name = var.env_file_bucket_name
+#  env_file_name        = var.env_file_name
+#}
 
 # Create ecs task execution role
 module "ecs_task_execution_role" {
-  source               = "git@github.com:ifediM/masterity-assignment.git//iam-role"
-  project_name         = local.project_name
-  env_file_bucket_name = module.s3.env_file_bucket_name
-  environment          = local.environment
+  source       = "git@github.com:ifediM/masterity-assignment.git//iam-role"
+  project_name = local.project_name
+#  env_file_bucket_name = module.s3.env_file_bucket_name
+  environment = local.environment
 }
 
 # Create ecs cluster, task definition and service
@@ -118,8 +118,8 @@ module "ecs" {
   container_image              = var.container_image
   container_image2             = var.container_image2
   container_image3             = var.container_image3
-  env_file_bucket_name         = module.s3.env_file_bucket_name
-  env_file_name                = module.s3.env_file_name
+#  env_file_bucket_name         = module.s3.env_file_bucket_name
+#  env_file_name                = module.s3.env_file_name
   region                       = local.region
   private_app_subnet_az1_id    = module.vpc.private_app_subnet_az1_id
   private_app_subnet_az2_id    = module.vpc.private_app_subnet_az2_id
@@ -132,7 +132,7 @@ module "ecs" {
   dbs_password                 = var.dbs_password
   db_name                      = var.db_name
   redis_endpoint               = module.elastic_cache.redis_endpoint
-  rds = module.rds.rds
+  rds                          = module.rds.rds
 }
 
 # Create auto scaling group
